@@ -102,7 +102,7 @@ def create_item(item: ItemCreate):
     db.add(db_item)
     db.commit()
     db.close()
-    return {"message": "Item created successfully"}
+    return {"message": "Item criado com sucesso!"}
 
 @app.get("/buyers")
 def get_buyers():
@@ -119,7 +119,7 @@ def create_buyer(buyer: BuyerCreate):
     db.add(db_buyer)
     db.commit()
     db.close()
-    return {"message": "Buyer created successfully"}
+    return {"message": "Comprador criado com sucesso!"}
 
 @app.get("/bids")
 def get_bids():
@@ -135,22 +135,22 @@ def place_bid(bid: BidCreate):
     item = db.query(Item).filter(Item.id == bid.item_id).first()
     if item is None:
         db.close()
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Item não existe")
     
     if item.end_time < datetime.utcnow():
         db.close()
-        raise HTTPException(status_code=400, detail="Auction has ended")
+        raise HTTPException(status_code=400, detail="Item já expirou")
 
     if bid.amount <= item.current_bid:
         db.close()
-        raise HTTPException(status_code=400, detail="Bid must be higher than current bid")
+        raise HTTPException(status_code=400, detail="Lance deve ser maior que o lance atual")
 
     db_bid = Bid(amount=bid.amount, item_id=bid.item_id, buyer_id=bid.buyer_id)
     item.current_bid = bid.amount
     db.add(db_bid)
     db.commit()
     db.close()
-    return {"message": "Bid placed successfully"}
+    return {"message": "Lance realizado com sucesso"}
 
 def custom_openapi():
     if app.openapi_schema:
